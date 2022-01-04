@@ -1,6 +1,8 @@
 name: Test gha-secret-manager
 on:
-  - push
+  push:
+    branches-ignore:
+      - 'release/*'
 
 jobs:
   secret_manager:
@@ -9,7 +11,7 @@ jobs:
     steps:
       - name: Test gha-secret-manager
         id: secrets
-        uses: dmsi-io/gha-secret-manager@feature/KNOX-242
+        uses: dmsi-io/gha-secret-manager@main
         with:
           GCP_SA_KEY: ${{ secrets.GCP_SECRET_MANAGER_KEY }}
           secrets: KEY
