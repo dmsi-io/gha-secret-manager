@@ -28,7 +28,7 @@ function get_secrets() {
         echo "Retrieving secret for: $KEY"
 
         # https://cloud.google.com/secret-manager/docs/creating-and-accessing-secrets#access
-        SECRET="$(gcloud secrets versions access latest --secret="$PREFIX$KEY" --format='get(payload.data)' | tr '_-' '/+' | base64 -d)"
+        SECRET="$(gcloud secrets versions access latest --secret="$PREFIX$KEY" --format='get(payload.data)' | tr '_-' '/+' | base64 -d | sed -Ez '$ s/\n+$//')"
 
         if [ -z "$SECRET" ]; then
             exit 1
