@@ -34,9 +34,9 @@ function get_secrets() {
             exit 1
         fi
 
-        echo "::add-mask::$SECRET"
+        echo "::add-mask::$(echo $SECRET)"
 
-        echo "::set-output name=$KEY::$SECRET"
+        echo "::set-output name=$KEY::$(echo $SECRET)"
     done
 }
 
