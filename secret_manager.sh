@@ -1,27 +1,25 @@
 #!/bin/bash
 
 function main() {
-    gcloud_auth "$INPUT_GCP_SA_KEY" 
+    gcloud_auth
 
-    get_secrets "$INPUT_SECRETS"
+    get_secrets
 }
 
 function gcloud_auth() {
-    GCP_SA_KEY=$1
-    PROJECT_ID=$(echo "$GCP_SA_KEY" | jq -r '.project_id')
+    PROJECT_ID=$(echo "$INPUT_GCP_SA_KEY" | jq -r '.project_id')
 
     echo "Authenticating Service Account with gcloud..."
     mkdir -p /tmp/certs
-    echo "$GCP_SA_KEY" > /tmp/certs/svc_account.json
+    echo "$INPUT_GCP_SA_KEY" > /tmp/certs/svc_account.json
     gcloud auth activate-service-account --key-file=/tmp/certs/svc_account.json --project "$PROJECT_ID" --no-user-output-enabled
 }
 
 function get_secrets() {
-    KEYS=$1
-    PREFIX=$(env_prefixer "$GITHUB_ACTION_REF" "$GITHUB_REF_TYPE")
+    PREFIX=$(env_prefixer)
 
     echo "Retrieving secrets from Secret Manager..."
-    for KEY in ${KEYS//,/ }
+    for KEY in ${INPUT_SECRETS//,/ }
     do
         echo "Retrieving secret for: $KEY"
 
