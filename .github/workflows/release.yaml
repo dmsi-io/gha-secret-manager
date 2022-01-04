@@ -49,7 +49,7 @@ jobs:
         uses: EndBug/add-and-commit@8c12ff729a98cfbcd3fe38b49f55eceb98a5ec02
         with:
           author_email: ${{ secrets.GHA_ACCESS_EMAIL }}
-          author_name: ${{ secrets.GHA_ACCESS_USER }}
+          default_author: ${{ secrets.GHA_ACCESS_USER }}
 
       - name: Create and Push Git Tag
         run: |
