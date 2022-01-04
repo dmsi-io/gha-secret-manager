@@ -1,0 +1,60 @@
+name: Release gha-gcloud-docker
+on:
+  push:
+    branches:
+      - 'release/*'
+
+env:
+  REGISTRY_HOSTNAME: ghcr.io
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Release gha-gcloud-docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Output branch tag
+        id: tag # use as ${{ steps.tag.outputs.name }}
+        run: echo "::set-output name=name::${GITHUB_REF#refs/heads/release/}"
+
+      - name: Output build image
+        id: build_image # use as ${{ steps.build_image.outputs.tag }}
+        run: echo "::set-output name=tag::${{ env.REGISTRY_HOSTNAME }}/${{ github.repository }}:${{ steps.tag.outputs.name }}"
+
+      - name: Build Docker Image
+        run: docker build -t ${{ steps.build_image.outputs.tag }} .
+
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY_HOSTNAME }} -u ${{ github.actor }} --password-stdin
+
+      - name: Publish Docker Image
+        run: docker push ${{ steps.build_image.outputs.tag }}
+
+      - name: Check action image
+        id: action-image
+        run: |
+          if [[ $(yq e '.runs.image' action.yaml) = "docker://${{ steps.build_image.outputs.tag }}" ]]; then
+            echo "::set-output name=is-set::true"
+          fi
+
+      - name: Update action image
+        if: steps.action-image.outputs.is-set != 'true'
+        run: yq e -i '.runs.image = "docker://${{ steps.build_image.outputs.tag }}"' action.yaml
+
+      - name: Add and Commit
+        if: steps.action-image.outputs.is-set != 'true'
+        # Equivalent commit hash to tag v7.5.0
+        uses: EndBug/add-and-commit@8c12ff729a98cfbcd3fe38b49f55eceb98a5ec02
+        with:
+          author_email: ${{ secrets.GHA_ACCESS_EMAIL }}
+          default_author: ${{ secrets.GHA_ACCESS_USER }}
+
+      - name: Create and Push Git Tag
+        run: |
+          git config --local user.email "${{ secrets.GHA_ACCESS_EMAIL }}"
+          git config --local user.name "${{ secrets.GHA_ACCESS_USER }}"
+
+          git tag -f -a ${{ steps.tag.outputs.name }} -m "[ci skip]"
+          git push origin -f --tags

@@ -1,0 +1,20 @@
+name: Test gha-secret-manager
+on:
+  - push
+
+jobs:
+  secret_manager:
+    runs-on: ubuntu-latest
+    name: Test gha-secret-manager
+    steps:
+      - name: Test gha-secret-manager
+        id: secrets
+        uses: dmsi-io/gha-secret-manager@feature/KNOX-242
+        with:
+          GCP_SA_KEY: ${{ secrets.GCP_SECRET_MANAGER_KEY }}
+          secrets: KEY
+
+      - name: Print Outputs
+        if: always()
+        run: |
+          echo "KEY=${{ steps.secrets.outputs.KEY }}"
