@@ -1,8 +1,6 @@
 #!/bin/bash
 
 function main() {
-    env | sort
-
     gcloud_auth "$INPUT_GCP_SA_KEY" 
 
     get_secrets "$INPUT_SECRETS"
