@@ -1,9 +1,13 @@
 #!/bin/bash
 
+TMP_DIR="temp_secret"
+
 function main() {
     gcloud_auth
 
     get_secrets
+
+    cleanup
 }
 
 function gcloud_auth() {
@@ -65,6 +69,9 @@ function get_tag_parent() {
         git config --global url."https://$INPUT_GHA_ACCESS_USER:$INPUT_GHA_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
     fi
 
+    mkdir "$TMP_DIR"
+    cd "$TMP_DIR"
+
     git clone "$GIT_REPO_URL"
 
     cd ${GITHUB_REPOSITORY##*/}
@@ -84,6 +91,11 @@ function get_ref() {
     else
         echo "$GITHUB_REF_NAME"
     fi
+}
+
+function cleanup() {
+    echo "Cleaning up..."
+    rm -rf "$TMP_DIR"
 }
 
 main "$@"; exit
