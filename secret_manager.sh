@@ -4,6 +4,8 @@ function main() {
     gcloud_auth
 
     get_secrets
+
+    cleanup
 }
 
 function gcloud_auth() {
@@ -65,6 +67,9 @@ function get_tag_parent() {
         git config --global url."https://$INPUT_GHA_ACCESS_USER:$INPUT_GHA_ACCESS_TOKEN@github.com".insteadOf "https://github.com"
     fi
 
+    mkdir temp_secret
+    cd temp_secret
+
     git clone "$GIT_REPO_URL"
 
     cd ${GITHUB_REPOSITORY##*/}
@@ -72,12 +77,8 @@ function get_tag_parent() {
     git fetch origin "refs/tags/$TAG"
 
     if [[ $(git branch -r --contains $(git rev-list -n 1 tags/$TAG) | egrep "origin/(main|release/*)") ]]; then
-        rm -rf ${GITHUB_REPOSITORY##*/}
-        ls -al
         echo "true"
     else 
-        rm -rf ${GITHUB_REPOSITORY##*/}
-        ls -al
         echo "false"
     fi
 }
@@ -88,6 +89,13 @@ function get_ref() {
     else
         echo "$GITHUB_REF_NAME"
     fi
+}
+
+function cleanup() {
+    echo "Cleaning up..."
+    ls -al
+    rm -rf temp_secret
+    ls -al
 }
 
 main "$@"; exit
