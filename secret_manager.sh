@@ -72,12 +72,14 @@ function get_tag_parent() {
     git fetch origin "refs/tags/$TAG"
 
     if [[ $(git branch -r --contains $(git rev-list -n 1 tags/$TAG) | egrep "origin/(main|release/*)") ]]; then
+        rm -rf ${GITHUB_REPOSITORY##*/}
+        ls -al
         echo "true"
     else 
+        rm -rf ${GITHUB_REPOSITORY##*/}
+        ls -al
         echo "false"
     fi
-
-    rm -rf ${GITHUB_REPOSITORY##*/}
 }
 
 function get_ref() {
