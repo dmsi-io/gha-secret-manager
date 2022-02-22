@@ -1,23 +1,18 @@
 name: GCP Secret Manager API
 description: 'Automates the retrieval of environment secrets from GCP Secret Manager API'
-
 inputs:
   GCP_SA_KEY:
     description: 'GCP Service Account Key (JSON)'
     required: true
-
   secrets:
     description: 'CSV list of secrets to pull from Secret Manager'
     required: true
-
-  GHA_ACCESS_USER: 
+  GHA_ACCESS_USER:
     description: 'GitHub Actions Access Username (required for private repos)'
     required: false
-
   GHA_ACCESS_TOKEN:
     description: 'GitHub Actions Access Token (required for private repos)'
     required: false
-
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'docker://ghcr.io/dmsi-io/gha-secret-manager:v1'
