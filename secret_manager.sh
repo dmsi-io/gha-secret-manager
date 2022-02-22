@@ -76,6 +76,8 @@ function get_tag_parent() {
     else 
         echo "false"
     fi
+
+    rm -rf ${GITHUB_REPOSITORY##*/}
 }
 
 function get_ref() {
